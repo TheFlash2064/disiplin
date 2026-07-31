@@ -1,0 +1,28 @@
+with open('app/src/main/java/com/example/TaskViewModel.kt', 'r') as f:
+    content = f.read()
+
+content = content.replace(
+"""    fun saveTaskLog(taskLog: TaskLog) {
+        viewModelScope.launch {
+            val existing = repository.getLogsForDate(currentDate.value).value?.find { it.taskId == taskLog.taskId }
+            if (taskLog.id == 0 && existing == null) {
+                repository.insertTaskLog(taskLog)
+            } else if (taskLog.id == 0 && existing != null) {
+                repository.updateTaskLog(taskLog.copy(id = existing.id))
+            } else {
+                repository.updateTaskLog(taskLog)
+            }""",
+"""    fun saveTaskLog(taskLog: TaskLog) {
+        viewModelScope.launch {
+            val existingLog = dailyLogs.value.find { it.taskId == taskLog.taskId }
+            if (taskLog.id == 0 && existingLog != null) {
+                repository.updateTaskLog(taskLog.copy(id = existingLog.id))
+            } else if (taskLog.id == 0) {
+                repository.insertTaskLog(taskLog)
+            } else {
+                repository.updateTaskLog(taskLog)
+            }"""
+)
+
+with open('app/src/main/java/com/example/TaskViewModel.kt', 'w') as f:
+    f.write(content)
